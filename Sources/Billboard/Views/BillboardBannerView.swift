@@ -66,7 +66,8 @@ public struct BillboardBannerView : View {
                 .contentShape(Rectangle())
             }
             .buttonStyle(.plain)
-            Spacer()
+            .frame(depth: 0)
+//            Spacer()
             
             Group {
                 if !hideDismissButtonAndTimer {
@@ -96,6 +97,7 @@ public struct BillboardBannerView : View {
                 }
             }
             .padding(.trailing, 9)
+            .frame(depth: 0)
         }
         .accessibilityLabel(Text("\(advert.name), \(advert.title)"))
         .padding(10)
@@ -116,6 +118,7 @@ public struct BillboardBannerView : View {
                 await fetchAppIcon()
             }
         }
+        
         
     }
     
