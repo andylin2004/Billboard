@@ -65,8 +65,18 @@ public struct BillboardBannerView : View {
                 .padding(.trailing, hideDismissButtonAndTimer ? 0: 40)
                 .contentShape(Rectangle())
             }
+            #if os(visionOS)
+            .tint(advert.background.gradient)
+            .shadow(color: includeShadow ? advert.background.opacity(0.5) : Color.clear, radius: 6, x: 0, y: 2)
+            .contentShape(RoundedRectangle(cornerRadius: 16))
+            .buttonStyle(.bordered)
+            .buttonBorderShape(.roundedRectangle(radius: 16))
+            #else
             .buttonStyle(.plain)
+            #endif
+            #if os(visionOS)
             .frame(depth: 0)
+            #endif
 //            Spacer()
             
             Group {
@@ -80,14 +90,26 @@ public struct BillboardBannerView : View {
                             #endif
                             showAdvertisement = false
                         } label: {
-                            Label("Dismiss advertisement", systemImage: "xmark.circle.fill")
+                            Label("Dismiss advertisement", systemImage: {
+                                #if os(visionOS)
+                                return "xmark"
+                                #else
+                                return "xmark.circle.fill"
+                                #endif
+                            }())
                                 .labelStyle(.iconOnly)
                                 .font(.compatibleSystem(.title2, design: .rounded, weight: .bold))
                                 .symbolRenderingMode(.hierarchical)
+                            #if !os(visionOS)
                                 .imageScale(.large)
                                 .controlSize(.large)
+                            #endif
                         }
                         .tint(advert.tint)
+                        #if os(visionOS)
+                        .glassBackgroundEffect()
+                        #endif
+                        
                     } else {
                         BillboardCountdownView(advert:advert,
                                                totalDuration: config.duration,
@@ -97,11 +119,15 @@ public struct BillboardBannerView : View {
                 }
             }
             .padding(.trailing, 9)
-            .frame(depth: 0)
+            #if os(visionOS)
+            .frame(depth: 1)
+            #endif
         }
         .accessibilityLabel(Text("\(advert.name), \(advert.title)"))
+        #if !os(visionOS)
         .padding(10)
         .background(backgroundView)
+        #endif
         .overlay(RoundedRectangle(cornerRadius: 16, style: .continuous).stroke(Color.primary.opacity(0.1), lineWidth: 1))
         .animation(.spring(), value: showAdvertisement)
         .task {
@@ -121,7 +147,6 @@ public struct BillboardBannerView : View {
         
         
     }
-    
     
     private func fetchAppIcon() async {
         if let data = try? await advert.getAppIcon() {
