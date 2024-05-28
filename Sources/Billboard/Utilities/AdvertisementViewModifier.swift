@@ -42,8 +42,14 @@ public struct AdvertisementModifier<V: View>: ViewModifier {
                     }
                 }
             }
+        #if os(macOS)
+            .sheet(item: $monitor.advertisement, onDismiss: { showAd.wrappedValue = false }) { advert in
+                BillboardView(advert: advert, config: config, paywall: { paywall() })
+            }
+        #else
             .fullScreenCover(item: $monitor.advertisement, onDismiss: { showAd.wrappedValue = false }) { advert in
                 BillboardView(advert: advert, config: config, paywall: { paywall() })
             }
+        #endif
     }
 }

@@ -20,7 +20,9 @@ public final class BillboardViewModel : ObservableObject {
     
     public static var networkConfiguration : URLSessionConfiguration {
         let config = URLSessionConfiguration.default
+        #if !os(macOS)
         config.multipathServiceType = .handover
+        #endif
         config.waitsForConnectivity = true
         config.timeoutIntervalForRequest = 30
         return config

@@ -120,6 +120,7 @@ public struct BillboardView<Content:View>: View {
             .padding()
         }
         .sheet(isPresented: $showPaywall) { paywall() }
+        #if !os(macOS)
         .onAppear(perform: displayOverlay)
         .onDisappear(perform: dismissOverlay)
         .onChange(of: showPaywall) { newValue in
@@ -131,11 +132,12 @@ public struct BillboardView<Content:View>: View {
         }
         .statusBarHidden(true)
         #endif
+        #endif
       
     }
     
     //MARK: - App Store Overlay
-    
+    #if !os(macOS)
     private var storeOverlay : SKOverlay {
         let config = SKOverlay.AppConfiguration(appIdentifier: advert.appStoreID, position: .bottom)
         let overlay = SKOverlay(configuration: config)
@@ -164,6 +166,7 @@ public struct BillboardView<Content:View>: View {
         }
         #endif
     }
+    #endif
     
 }
 

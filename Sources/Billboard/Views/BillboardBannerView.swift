@@ -16,7 +16,7 @@ public struct BillboardBannerView : View {
     let hideDismissButtonAndTimer : Bool
     
     @State private var canDismiss = false
-    @State private var appIcon : UIImage? = nil
+    @State private var appIcon : NSUIImage? = nil
     @State private var showAdvertisement = true
     
     public init(advert: BillboardAd, config: BillboardConfiguration = BillboardConfiguration(), includeShadow: Bool = true, hideDismissButtonAndTimer: Bool = false) {
@@ -37,7 +37,7 @@ public struct BillboardBannerView : View {
             } label: {
                 HStack(spacing: 10) {
                     if let appIcon {
-                        Image(uiImage: appIcon)
+                        Image(nsuiImage: appIcon)
                             .resizable()
                             .frame(width: 60, height: 60)
                             .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
@@ -98,7 +98,11 @@ public struct BillboardBannerView : View {
                                 #endif
                             }())
                                 .labelStyle(.iconOnly)
+                            #if os(macOS)
+                                .font(.compatibleSystem(.title, design: .rounded, weight: .bold))
+                            #else
                                 .font(.compatibleSystem(.title2, design: .rounded, weight: .bold))
+                            #endif
                                 .symbolRenderingMode(.hierarchical)
                             #if !os(visionOS)
                                 .imageScale(.large)
@@ -108,6 +112,10 @@ public struct BillboardBannerView : View {
                         .tint(advert.tint)
                         #if os(visionOS)
                         .glassBackgroundEffect()
+                        .foregroundColor(advert.tint)
+                        #elseif os(macOS)
+                        .buttonStyle(.borderless)
+                        .foregroundColor(advert.tint)
                         #endif
                         
                     } else {
@@ -151,14 +159,14 @@ public struct BillboardBannerView : View {
     private func fetchAppIcon() async {
         if let data = try? await advert.getAppIcon() {
             await MainActor.run {
-                appIcon = UIImage(data: data)
+                appIcon = NSUIImage(data: data)
             }
         }
     }
 
     @ViewBuilder
     var backgroundView : some View {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13, *) {
             RoundedRectangle(cornerRadius: 16, style: .continuous)
                 .fill(advert.background.gradient)
                 .shadow(color: includeShadow ? advert.background.opacity(0.5) : Color.clear, radius: 6, x: 0, y: 2)

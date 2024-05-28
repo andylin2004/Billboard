@@ -9,7 +9,7 @@ import SwiftUI
 
 extension Font {
     public static func compatibleSystem(_ style: TextStyle, design: Design?, weight: Weight?) -> Font {
-        if #available(iOS 16.0, *) {
+        if #available(iOS 16.0, macOS 13, *) {
             return .system(style, design: design, weight: weight)
         } else {
             return .system(style, design: design ?? .default).weight(weight ?? .regular)
