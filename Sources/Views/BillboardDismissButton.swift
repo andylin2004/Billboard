@@ -32,9 +32,8 @@ struct BillboardDismissButton : View {
             Button(role: .close) {
                 dismiss()
             }
-            #if os(tvOS)
             .buttonBorderShape(.circle)
-            #else
+            #if !os(tvOS)
             .controlSize(.large)
             #endif
         } else {
