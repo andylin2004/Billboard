@@ -29,7 +29,97 @@ public struct BillboardBannerView : View {
     }
     
     public var body: some View {
-        
+        #if os(tvOS)
+        ZStack(alignment: .trailing) {
+            Button {
+                if let url = advert.appStoreLink {
+                    openURL(url)
+                    canDismiss = true
+                }
+            } label: {
+                HStack(spacing: 20) {
+                    ZStack {
+                        if let appIcon, !loadingNewIcon {
+                            Image(uiImage: appIcon)
+                                .resizable()
+                        } else {
+                            advert.tint
+                            ProgressView()
+                                .foregroundStyle(advert.text)
+                        }
+                    }
+                    .frame(width: 120, height: 120)
+                    .clipShape(.rect(cornerRadius: 26, style: .continuous))
+                    .accessibilityHidden(true)
+                    .transition(.blurReplace)
+                    .animation(.default, value: loadingNewIcon)
+                    
+                    
+                    VStack(alignment: .leading, spacing: 4) {
+                        BillboardAdInfoLabel(advert: advert)
+                        
+                        VStack(alignment: .leading) {
+                            Text(advert.title)
+                                .font(.system(.footnote, design: .rounded, weight: .bold))
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.75)
+                            Text(advert.name)
+                                .font(.system(.caption2, design: .rounded, weight: .medium).smallCaps())
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                    .foregroundStyle(advert.text)
+                    .accessibilityHidden(true)
+                    Spacer()
+                }
+                .padding(.trailing, hideDismissButtonAndTimer ? 0: 40)
+                .contentShape(Rectangle())
+            }
+            .buttonStyle(.plain)
+            
+            Group {
+                if !hideDismissButtonAndTimer {
+                    if canDismiss {
+                        Button("Dismiss advertisement", systemImage: "xmark.circle.fill") {
+                            showAdvertisement = false
+                        }
+                        .labelStyle(.iconOnly)
+                        .font(.system(.title2, design: .rounded, weight: .bold))
+                        .symbolRenderingMode(.hierarchical)
+                        .imageScale(.large)
+                        .buttonBorderShape(.circle)
+                        .buttonStyle(.plain)
+                    } else {
+                        BillboardCountdownView(advert:advert,
+                                               totalDuration: config.duration,
+                                               canDismiss: $canDismiss)
+                    }
+                }
+            }
+            .padding(.trailing, 20)
+        }
+        .accessibilityLabel(Text("\(advert.name), \(advert.title)"))
+        .padding(10)
+        .background {
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .fill(advert.background.gradient)
+                .stroke(Color.primary.opacity(0.1), lineWidth: 1)
+                .shadow(color: includeShadow ? advert.background.opacity(0.5) : Color.clear, radius: 6, x: 0, y: 2)
+        }
+        .animation(.spring(), value: showAdvertisement)
+        .task {
+            await fetchAppIcon()
+        }
+        .opacity(showAdvertisement ? 1 : 0)
+        .scaleEffect(showAdvertisement ? 1 : 0)
+        .frame(height: showAdvertisement ? nil : 0)
+        .transaction {
+            if reducedMotion { $0.animation = nil }
+        }
+        .onChange(of: advert, {
+            Task { await fetchAppIcon() }
+        })
+        #else
         ZStack(alignment: .trailing) {
             Button {
                 if let url = advert.appStoreLink {
@@ -48,20 +138,11 @@ public struct BillboardBannerView : View {
                                 .foregroundStyle(advert.text)
                         }
                     }
-#if os(tvOS)
-                    .frame(width: 120, height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: 26, style: .continuous))
-                    #else
                     .frame(width: 60, height: 60)
                     .clipShape(RoundedRectangle(cornerRadius: 13, style: .continuous))
-                    #endif
                     .accessibilityHidden(true)
                     .transition(.blurReplace)
                     .animation(.default, value: loadingNewIcon)
-#if os(tvOS)
-                    .padding(.leading)
-                    #endif
-                    
                     
                     VStack(alignment: .leading, spacing: 4) {
                         BillboardAdInfoLabel(advert: advert)
@@ -110,9 +191,7 @@ public struct BillboardBannerView : View {
                                 .imageScale(.large)
 #endif
                         }
-#if !os(tvOS)
                         .controlSize(.large)
-#endif
 #if !os(visionOS)
                         .tint(advert.tint)
 #endif
@@ -142,6 +221,8 @@ public struct BillboardBannerView : View {
         .onChange(of: advert, {
             Task { await fetchAppIcon() }
         })
+#endif
+        
     }
     
     

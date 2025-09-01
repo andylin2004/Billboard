@@ -59,12 +59,12 @@ struct BillboardCountdownView : View {
         #else
         ZStack {
             Circle()
-                .stroke(advert.tint.opacity(0.2), style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                .stroke(.quinary, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
         
                 
             Circle()
                 .trim(from: 0, to: timerProgress)
-                .stroke(advert.tint, style: StrokeStyle(lineWidth: 2, lineCap: .round, lineJoin: .round))
+                .stroke(.primary, style: StrokeStyle(lineWidth: 4, lineCap: .round, lineJoin: .round))
             
 
             Text("\(seconds, specifier: "%.0f")")
@@ -83,7 +83,7 @@ struct BillboardCountdownView : View {
         #if os(visionOS)
         .foregroundStyle(.primary)
         #else
-        .foregroundColor(advert.tint)
+        .foregroundStyle(advert.tint)
         #endif
         .rotationEffect(.degrees(-90))
         .frame(width: 32, height: 32)
