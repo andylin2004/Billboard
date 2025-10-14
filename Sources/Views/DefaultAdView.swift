@@ -13,6 +13,16 @@ struct DefaultAdView : View {
     var body: some View {
         ViewThatFits(in: .horizontal) {
             HStack {
+                #if os(tvOS)
+                Spacer()
+                VStack {
+                    Spacer()
+                    BillboardTextView(advert: advert)
+                    Spacer()
+                }
+                BillboardImageView(advert: advert)
+                Spacer()
+                #else
                 Spacer()
                 BillboardImageView(advert: advert)
                 
@@ -22,6 +32,8 @@ struct DefaultAdView : View {
                     Spacer()
                 }
                 Spacer()
+                #endif
+                
             }
             
             VStack {

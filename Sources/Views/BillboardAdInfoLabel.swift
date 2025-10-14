@@ -16,23 +16,19 @@ struct BillboardAdInfoLabel: View {
             .font(.system(.caption, design: .rounded, weight: .heavy).smallCaps())
             .fixedSize(horizontal: true, vertical: false)
             .foregroundColor(advert.tint)
-            .padding(.vertical, 4)
-            .padding(.horizontal, 8)
+            .padding(.vertical, 6)
+            .padding(.horizontal, 12)
             .accessibilityLabel(Text("Advertisement"))
-            .background {
-                RoundedRectangle(cornerRadius: 4)
-                    .fill(advert.tint.quinary)
-            }
+            .background(advert.tint.quinary, in: .capsule)
         #else
         ZStack {
-            RoundedRectangle(cornerRadius: 4, style: .continuous)
-                .fill(advert.tint.opacity(0.15))
             Text("AD")
-                .font(.system(size: 8, weight: .heavy, design: .rounded))
+                .font(.system(size: 10, weight: .heavy, design: .rounded))
                 .foregroundColor(advert.tint)
                 .offset(x:0.5)
         }
-        .frame(width: 22, height: 14)
+        .frame(width: 26, height: 16)
+        .background(advert.tint.quinary, in: .capsule)
         .accessibilityLabel(Text("Advertisement"))
         #endif
     }

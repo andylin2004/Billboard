@@ -76,48 +76,14 @@ public struct BillboardView<Content:View>: View {
                 displayOverlay()
             }
         })
-#else
+#elseif os(tvOS)
         ZStack(alignment: .top) {
             advert.background.ignoresSafeArea()
-            
             if advert.fullscreen {
                 FullScreenAdView(advert: advert)
             } else {
                 DefaultAdView(advert: advert)
             }
-#if !os(tvOS)
-            HStack {
-                Button {
-                    showPaywall.toggle()
-                } label: {
-                    Text("Remove Ads")
-                        .font(.system(.footnote, design: .rounded))
-                        .bold()
-                }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
-                Spacer()
-                
-                // TimerView
-                if canDismiss {
-                    BillboardDismissButton()
-                        .onAppear {
-#if os(iOS)
-                            if config.allowHaptics {
-                                haptics(.light)
-                            }
-#endif
-                        }
-                } else {
-                    BillboardCountdownView(advert:advert,
-                                           totalDuration: config.duration,
-                                           canDismiss: $canDismiss)
-                }
-            }
-            .frame(height: 40)
-            .tint(advert.tint)
-            .padding()
-#else
             HStack {
                 // TimerView
                 if canDismiss {
@@ -130,24 +96,68 @@ public struct BillboardView<Content:View>: View {
                 
                 Spacer()
                 
-                
-                Button {
-                    showPaywall.toggle()
-                } label: {
-                    Text("Remove Ads")
-                        .font(.system(.footnote, design: .rounded))
-                        .bold()
+                if #available(tvOS 26.0, *) {
+                    Button("Remove Ads") {
+                        showPaywall.toggle()
+                    }
+                    .fontWeight(.bold)
+                    .buttonStyle(.glass)
+                } else {
+                    Button("Remove Ads") {
+                        showPaywall.toggle()
+                    }
+                    .fontWeight(.bold)
+                    .buttonStyle(.bordered)
                 }
-                .buttonStyle(.bordered)
+                
             }
             .frame(height: 40)
             .tint(advert.tint)
             .padding()
-#endif
         }
         .background(advert.background.ignoresSafeArea())
         .sheet(isPresented: $showPaywall) { paywall() }
-#if !os(tvOS)
+#else
+        NavigationStack {
+            ZStack(alignment: .top) {
+                advert.background.ignoresSafeArea()
+                
+                if advert.fullscreen {
+                    FullScreenAdView(advert: advert)
+                } else {
+                    DefaultAdView(advert: advert)
+                }
+            }
+            .background(advert.background.ignoresSafeArea())
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                #if !os(tvOS)
+                if canDismiss {
+                    ToolbarItem(placement: .cancellationAction) {
+                        BillboardDismissButton()
+                            .labelStyle(.iconOnly)
+                    }
+                    
+                } else {
+                    ToolbarItem(placement: .cancellationAction) {
+                        BillboardCountdownView(advert:advert,
+                                               totalDuration: config.duration,
+                                               canDismiss: $canDismiss)
+                        .padding(2)
+                    }
+                }
+                
+                ToolbarItem(placement: .confirmationAction) {
+                    Button("Remove Ads") {
+                        showPaywall.toggle()
+                    }
+                    .fontWeight(.bold)
+                    .controlSize(.small)
+                }
+                #endif
+            }
+        }
+        .sheet(isPresented: $showPaywall) { paywall() }
         .onAppear(perform: displayOverlay)
         .onDisappear(perform: dismissOverlay)
         .onChange(of: showPaywall, {
@@ -157,9 +167,7 @@ public struct BillboardView<Content:View>: View {
                 displayOverlay()
             }
         })
-        
         .statusBarHidden(true)
-#endif
 #endif
         
     }

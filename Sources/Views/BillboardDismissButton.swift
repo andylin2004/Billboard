@@ -28,15 +28,26 @@ struct BillboardDismissButton : View {
     }
     
     var body: some View {
-        Button {
-            dismiss()
-        } label: {
-            label
+        if #available(iOS 26.0, tvOS 26.0, visionOS 26.0, *) {
+            Button(role: .close) {
+                dismiss()
+            }
+            .buttonBorderShape(.circle)
+            #if !os(tvOS)
+            .controlSize(.large)
+            #endif
+        } else {
+            Button {
+                dismiss()
+            } label: {
+                label
+            }
+            #if os(tvOS)
+            .buttonBorderShape(.circle)
+            #else
+            .controlSize(.large)
+            #endif
         }
-        #if os(tvOS)
-        .buttonBorderShape(.circle)
-        #else
-        .controlSize(.large)
-        #endif
+       
     }
 }
