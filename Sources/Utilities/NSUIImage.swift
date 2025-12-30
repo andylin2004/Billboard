@@ -28,3 +28,9 @@ extension Image {
         #endif
     }
 }
+
+extension NSImage {
+    convenience init(cgImage: CGImage) {
+        self.init(cgImage: cgImage, size: .init(width: cgImage.width, height: cgImage.height))
+    }
+}
