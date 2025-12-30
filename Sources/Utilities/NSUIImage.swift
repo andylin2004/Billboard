@@ -1,11 +1,13 @@
 //
-//  File.swift
-//  
+//  NSUIImage.swift
+//
 //
 //  Created by Andy Lin on 5/27/24.
 //
 
 import Foundation
+import SwiftUI
+
 #if os(macOS)
 import AppKit
 #else
